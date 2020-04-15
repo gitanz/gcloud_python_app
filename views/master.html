@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en" ng-app="TaskManagementApp">
+<head>
+    <meta charset="UTF-8">
+    <title>{{params.title}}</title>
+    <link rel="stylesheet" href="/public/bootstrap.min.css">
+    <link rel="stylesheet" href="/public/style.css">
+    <script src="/public/angular.min.js"></script>
+    <script src="/public/angular-route.js"></script>
+    <script src="/public/app.module.js"></script>
+    <script src="/public/components/sidebar.component.js"></script>
+    <script src="/public/components/dashboard.component.js"></script>
+    <script src="/public/components/taskboard.component.js"></script>
+    <script src="/public/components/modal.component.js"></script>
+    <script>
+        var base_url = '{{params.base_url}}'
+    </script>
+</head>
+<body>
+
+<nav class="navbar navbar-light bg-light">
+    <a class="navbar-brand" href="#">Task Management</a>
+    {%if params.user%}
+    <a href="{{params.url}}">Logout</a>
+    {%else%}
+    <a href="{{params.url}}">Login</a>
+    {%endif%}
+</nav>
+
+<div class="container-fluid main-content">
+    <div class="row">
+        <ul class="list-group nav col-2" style="border:1px solid #ececec">
+            <side-bar></side-bar>
+
+        </ul>
+        <div class="col-10 main-content">
+            <div ng-view class="mt-2"></div>
+        </div>
+    </div>
+</div>
+<p id="myOverlay" class="my-overlay hide"></p>
+</body>
+</html>

@@ -1,0 +1,52 @@
+.bd-sidebar{
+    flex:0 1 320px;
+}
+
+.nav a{
+    color: #000000d9;
+}
+.nav a:hover{
+    color: #000000;
+}
+.main-content{
+    min-height:415px;
+    border-top: 1px solid #ececec;
+}
+.my-overlay{
+    height:100%;
+    width:100%;
+    position:absolute;
+    top:0;
+    left:0;
+    background:#0000001a;
+    display:none;
+    z-index:1;
+    margin:0
+}
+.my-modal{
+    position: fixed;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    right: 0;
+    margin: auto;
+    height: 400px;
+    width: 400px;
+    background:#FFF;
+    overflow:hidden;
+    box-shadow:0px 0px 10px #000000a6;
+    z-index:2
+}
+.my-modal-title{
+    padding:10px;
+    background:#ececec;
+    border-bottom:1px solid #ccc;
+    font-size:14pt;
+}
+.my-modal-content{
+    height:350px;
+    padding:10px;
+    overflow-y:auto;
+    overflow-x:hidden;
+}
+
