@@ -1,0 +1,39 @@
+<div class="row mt-2" style="border-bottom:1px solid #ececec">
+    <div class="col d-flex" style="justify-content:space-between">
+        <h4>Taskboard: {{taskboard.title}}</h4>
+        <div>
+            <div><small><strong><i ng-if="taskboard.creator" class="fas fa-user-shield"></i> Administrator:</strong>
+                {{taskboard.created_by}}</small></div>
+            <div><small><strong>Date Created:</strong> {{taskboard.created_date}}</small></div>
+        </div>
+    </div>
+</div>
+<div class="row mt-4">
+    <div class="col-9">
+        <div class="card">
+            <div class="card-header d-flex align-items-center" >
+                <div>Tasks</div>
+                <button class="btn btn-success btn-sm ml-auto">Add Task</button>
+            </div>
+            <ul class="list-group list-group-flush">
+                <li class="list-group-item">Task 1</li>
+                <li class="list-group-item">Task 2</li>
+                <li class="list-group-item">Task 3</li>
+            </ul>
+        </div>
+    </div>
+    <div class="col-3">
+        <div class="card">
+            <div class="card-header d-flex align-items-center" >
+                <div>Members</div>
+                <button class="btn btn-success btn-sm ml-auto">Add Member</button>
+            </div>
+            <ul class="list-group list-group-flush">
+                <li class="list-group-item">prasaianooz@gmail.com</li>
+                <li class="list-group-item">anooz.prasai@student.griffith.ie</li>
+                <li class="list-group-item">test@example.com</li>
+            </ul>
+        </div>
+    </div>
+</div>
+

@@ -5,14 +5,19 @@
 </div>
 <div class="row mt-2">
     <div class="col">
+
         <div class="d-flex flex-row-reverse">
-            <button class="btn btn-primary" ng-click="addTaskboard('Add Taskboard','/templates/add_board.html', '400px', '250px')">Add Board</button>
+            <button class="btn btn-primary"
+                    ng-click="addTaskboard('Add Taskboard','/templates/add_board.html', '400px', '250px')">Add Board
+            </button>
         </div>
         <table class="table table-bordered mt-2">
             <thead>
             <tr>
                 <th>Name</th>
                 <th>Created By</th>
+                <th>Created Date</th>
+                <th>Last Updated</th>
                 <th>Operations</th>
             </tr>
             </thead>
@@ -20,8 +25,27 @@
 
             <tr ng-repeat="taskboardValue in taskboardData">
                 <td>{{taskboardValue.title}}</td>
-                <td>{{taskboardValue.created_by}}</td>
-                <td><input type="button" name="test" class="btn btn-primary btn-sm" value="Edit"></td>
+                <td>
+                    <div class="d-flex" style="justify-content:space-between;">
+                        <span>{{taskboardValue.created_by}}</span>
+                        <i title="You have administrative access" ng-if="taskboardValue.creator"
+                           class="fas fa-user-shield"></i>
+                    </div>
+                </td>
+                <td>{{taskboardValue.created_date}}</td>
+                <td>{{taskboardValue.updated_date}}</td>
+                <td>
+                    <div class="d-flex" style="justify-content:space-around">
+                        <button ng-click="showTaskboard(taskboardValue.id)" class="btn btn-success btn-sm"><i class="fas fa-info-circle"></i> View</button>
+                        <button ng-click="editTaskboard('Edit Taskboard','', '400px', '250px',taskboardValue.id)"
+                                class="btn btn-primary btn-sm"><i class="fas fa-edit"></i> Edit
+                        </button>
+                        <button class="btn btn-warning btn-sm"><i class="fas fa-user-plus"></i> Invite</button>
+                        <button class="btn btn-danger btn-sm"><i class="fas fa-trash"></i> Delete</button>
+                    </div>
+
+
+                </td>
             </tr>
             </tbody>
         </table>
@@ -29,7 +53,8 @@
 </div>
 
 <div>
-    <div id="modal" ng-show="displayModal" class="my-modal" style="height:{{height ? height : '400px'}}; width:{{width ? width:'400px'}};">
+    <div id="modal" ng-show="displayModal" class="my-modal"
+         style="height:{{height ? height : '400px'}}; width:{{width ? width:'400px'}};">
         <div class="my-modal-title d-flex" style="justify-content:space-between">
             <div>{{title}}</div>
             <div>
@@ -37,16 +62,19 @@
             </div>
         </div>
         <div class="my-modal-content">
-        <!-- form starts -->
+            <!-- form starts -->
             <div class="row mt-2">
                 <div class="col">
                     <form action="javascript:void(0)" ng-submit="saveTaskboard()">
                         <div class="form-group">
                             <label for="">Title</label>
-                            <input type="text" ng-model="taskboard.title" class="form-control">
+                            <input type="text" ng-model="taskboard.title" class="form-control"
+                                   ng-class="{'is-invalid': errors.title}">
+                            <div class="invalid-feedback">{{errors.title}}</div>
                         </div>
+
                         <div class="form-group d-flex" style="justify-content:flex-end">
-                            <input type="hidden" ng-model="taskboard.taskboardid">
+                            <input type="hidden" ng-model="taskboard.id">
                             <input type="submit" class="btn btn-success" value="Save"/>
                         </div>
                     </form>

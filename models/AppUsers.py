@@ -1,5 +1,5 @@
 from google.appengine.ext import ndb
-
+from google.appengine.api import users
 
 class AppUsers(ndb.Model):
     email = ndb.StringProperty()
@@ -8,6 +8,13 @@ class AppUsers(ndb.Model):
 class AppUsersMethod:
     def __init__(self):
         pass
+
+    @staticmethod
+    def get_current_user():
+        if users.get_current_user():
+            return AppUsersMethod.fetch_user(users.get_current_user().email())
+        else:
+            return False
 
     @staticmethod
     def user_to_dictionary(app_user):

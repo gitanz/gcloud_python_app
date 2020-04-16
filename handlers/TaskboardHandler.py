@@ -17,19 +17,40 @@ class TaskboardHandler(BaseHandler):
         response = {'success': True, 'data': taskboards}
         self.send_json_object(response)
 
+    def get(self, id):
+        taskboard_object = TaskboardMethods.get_by_id(int(id))
+        response = {'success': True, 'data': TaskboardMethods.taskboard_to_dictionary(taskboard_object)}
+        self.send_json_object(response)
+
     def post(self):
         params = json.loads(self.request.body)
-        taskboard_object = TaskboardMethods.insert_taskboard(params['title'], self.appUser.key)
-        if taskboard_object:
-            response_object = TaskboardMethods.taskboard_to_dictionary(taskboard_object)
-            response = {'success': True, 'data': response_object}
+        params, validation_errors = self.validate(params)
+        if validation_errors:
+            response = {'success': False, 'validate': False, 'errors': validation_errors}
         else:
-            response = {'success': False, 'message': 'Taskboard with same title already exists'}
+            taskboard_object = TaskboardMethods.put_taskboard(params['title'], params['id'])
+            response_object = TaskboardMethods.taskboard_to_dictionary(taskboard_object)
+            response = {
+                'success': True,
+                'message': 'Successfully updated taskboard.' if params['id'] else 'Successfully added taskboard.',
+                'validate': True,
+                'data': response_object,
+                'errors': False
+            }
 
         self.send_json_object(response)
 
-    def put(self):
-        pass
+    @staticmethod
+    def validate(params):
+        validation_error = {}
+        if 'id' not in params:
+            params['id'] = False
 
-    def delete(self):
-        pass
+        if 'title' not in params or len(params['title'].strip()) == 0:
+            validation_error = {'title': 'Please fill title'}
+
+        if 'title' in params and len(params['title'].strip()) > 0:
+            if bool(TaskboardMethods.exists_taskboard(params['title'], params['id'])):
+                validation_error = {'title': 'Title already exists'}
+
+        return params, validation_error

@@ -6,19 +6,23 @@ angular.
       this.navs = [
         {
             "text": "Dashboards",
-            "link": "#!/dashboard"
+            "link": "#!/dashboard",
+            "icon": "chart-line"
         },
         {
             "text": "Taskboards",
-            "link": "#!/taskboards"
+            "link": "#!/taskboards",
+            "icon": "project-diagram"
         },
         {
             "text": "Tasks",
-            "link": "#!/tasks"
+            "link": "#!/tasks",
+            "icon": "tasks"
         },
         {
             "text": "Users",
-            "link": "#!/users"
+            "link": "#!/users",
+            "icon": "users"
         }
       ]
     }

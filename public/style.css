@@ -2,6 +2,14 @@
     flex:0 1 320px;
 }
 
+body{
+    font-size:14px;
+}
+.table td, .table th {
+    padding: 7px;
+    vertical-align: middle;
+    border-top: 1px solid #dee2e6;
+}
 .nav a{
     color: #000000d9;
 }
