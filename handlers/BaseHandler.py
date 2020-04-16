@@ -1,7 +1,7 @@
 import webapp2
 from google.appengine.api import users
 from views.ViewHandler import ViewHandler
-from models.AppUsers import *
+from models.AppUserModel import *
 import urlparse
 import json
 
@@ -18,7 +18,7 @@ class BaseHandler(webapp2.RequestHandler):
         # creating login/logout url
         if self.user:
             url = users.create_logout_url(self.request.uri)
-            self.appUser = AppUsersMethod.fetch_user(self.user.email())
+            self.appUser = AppUserMethods.fetch_user(self.user.email())
         else:
             self.appUser = None
             url = users.create_login_url(self.request.uri)

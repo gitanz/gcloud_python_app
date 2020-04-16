@@ -1,18 +1,19 @@
 from google.appengine.ext import ndb
 from google.appengine.api import users
 
-class AppUsers(ndb.Model):
+
+class AppUser(ndb.Model):
     email = ndb.StringProperty()
 
 
-class AppUsersMethod:
+class AppUserMethods:
     def __init__(self):
         pass
 
     @staticmethod
     def get_current_user():
         if users.get_current_user():
-            return AppUsersMethod.fetch_user(users.get_current_user().email())
+            return AppUserMethods.fetch_user(users.get_current_user().email())
         else:
             return False
 
@@ -22,28 +23,34 @@ class AppUsersMethod:
 
     @staticmethod
     def get_all_users():
-        return AppUsers.query()
+        return AppUser.query().fetch()
 
     @staticmethod
     def update_user(id, email):
-        app_user = AppUsers(id=id, email=email)
+        app_user = AppUser(id=id, email=email)
         app_user.put()
         return app_user
 
     @staticmethod
     def insert_user(email):
-        app_user = AppUsers(email=email)
+        app_user = AppUser(email=email)
         app_user.put()
         return app_user
 
     @staticmethod
+    def get_user(id):
+        id = int(id)
+        key = ndb.Key(AppUser, id)
+        return key.get()
+
+    @staticmethod
     def delete_user(id):
-        key = ndb.Key(AppUsers, id)
+        key = ndb.Key(AppUser, id)
         key.delete()
 
     @staticmethod
     def fetch_user(email):
-        app_user = AppUsers.query(AppUsers.email == email).get()
+        app_user = AppUser.query(AppUser.email == email).get()
         if not app_user:
-            app_user = AppUsersMethod.insert_user(email)
+            app_user = AppUserMethods.insert_user(email)
         return app_user

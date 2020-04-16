@@ -1,6 +1,6 @@
 from google.appengine.ext import ndb
 
-from models.AppUsers import AppUsersMethod
+from models.AppUserModel import AppUserMethods
 import datetime
 
 
@@ -25,7 +25,7 @@ class TaskboardMethods:
             'created_by': taskboard.created_by.get().email,
             'created_date': taskboard.created_date.strftime('%Y-%m-%d'),
             'updated_date': taskboard.updated_date.strftime('%Y-%m-%d'),
-            'creator': taskboard.created_by.get().email == AppUsersMethod.get_current_user().email
+            'creator': taskboard.created_by.get().email == AppUserMethods.get_current_user().email
         }
 
     @staticmethod
@@ -64,7 +64,7 @@ class TaskboardMethods:
     @staticmethod
     def insert_taskboard(title):
         title = title.strip()
-        taskboard = Taskboard(title=title, created_by=AppUsersMethod.get_current_user().key)
+        taskboard = Taskboard(title=title, created_by=AppUserMethods.get_current_user().key)
         if not TaskboardMethods.exists_taskboard(title):
             taskboard.put()
         else:

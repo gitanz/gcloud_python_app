@@ -40,14 +40,13 @@ class TaskboardHandler(BaseHandler):
 
         self.send_json_object(response)
 
-    @staticmethod
-    def validate(params):
+    def validate(self, params):
         validation_error = {}
         if 'id' not in params:
             params['id'] = False
 
         if 'title' not in params or len(params['title'].strip()) == 0:
-            validation_error = {'title': 'Please fill title'}
+            validation_error = {'title': 'Title field required'}
 
         if 'title' in params and len(params['title'].strip()) > 0:
             if bool(TaskboardMethods.exists_taskboard(params['title'], params['id'])):

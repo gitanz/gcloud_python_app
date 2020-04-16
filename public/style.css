@@ -42,7 +42,9 @@ body{
     width: 400px;
     background:#FFF;
     overflow:hidden;
-    box-shadow:0px 0px 10px #000000a6;
+    box-shadow: 0px 0px 10px #0000002b;
+    border-radius:4px;
+    border: 1px solid #bbb;
     z-index:2
 }
 .my-modal-title{
@@ -50,6 +52,12 @@ body{
     background:#ececec;
     border-bottom:1px solid #ccc;
     font-size:14pt;
+}
+.my-modal-title i.close-modal{
+    color:#0000007a;
+}
+.my-modal-title i.close-modal:hover{
+    color:#000;
 }
 .my-modal-content{
     height:350px;

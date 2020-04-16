@@ -9,31 +9,132 @@
     </div>
 </div>
 <div class="row mt-4">
-    <div class="col-9">
+    <div class="col-md-9 col-sm-12">
         <div class="card">
-            <div class="card-header d-flex align-items-center" >
+            <div class="card-header d-flex align-items-center">
                 <div>Tasks</div>
-                <button class="btn btn-success btn-sm ml-auto">Add Task</button>
+                <button ng-click="showTaskModal('Add Task', 'Save','550', '500')"
+                        class="btn btn-success btn-sm ml-auto"><i class="fas fa-id-card"></i> Add Task
+                </button>
             </div>
             <ul class="list-group list-group-flush">
-                <li class="list-group-item">Task 1</li>
-                <li class="list-group-item">Task 2</li>
-                <li class="list-group-item">Task 3</li>
+                <li class="list-group-item d-flex d-row">
+                    <span>Task 1</span>
+                    <a href="#" class="ml-auto"><i class="fas fa-edit"></i></a>
+                </li>
+                <li class="list-group-item d-flex d-row">
+                    <span>Task 2</span>
+                    <a href="#" class="ml-auto"><i class="fas fa-edit"></i></a>
+                </li>
+                <li class="list-group-item d-flex d-row">
+                    <span>Task 3</span>
+                    <a href="#" class="ml-auto"><i class="fas fa-edit"></i></a>
+                </li>
             </ul>
         </div>
     </div>
-    <div class="col-3">
+    <div class="col-md-3 col-sm-12">
         <div class="card">
-            <div class="card-header d-flex align-items-center" >
+            <div class="card-header d-flex align-items-center">
                 <div>Members</div>
-                <button class="btn btn-success btn-sm ml-auto">Add Member</button>
+                <button ng-click="showMemberModal('Add Member', 'Invite', '350','350')" class="btn btn-success btn-sm ml-auto">Invite Member</button>
             </div>
             <ul class="list-group list-group-flush">
-                <li class="list-group-item">prasaianooz@gmail.com</li>
-                <li class="list-group-item">anooz.prasai@student.griffith.ie</li>
-                <li class="list-group-item">test@example.com</li>
+                <li class="list-group-item d-flex d-row" ng-repeat="member in taskboard.members">
+                    <span>{{member.app_user_email}}</span>
+                    <a href="#" class="ml-auto"><i class="fas fa-trash-alt"></i></a>
+                </li>
             </ul>
         </div>
     </div>
+</div>
+
+<div>
+    <div ng-show="addTaskModal" class="my-modal"
+         style="height:{{taskModal.height ? taskModal.height : '400px'}}; width:{{taskModal.width ? taskModal.width:'400px'}};">
+        <div class="my-modal-title d-flex" style="justify-content:space-between">
+            <div>{{taskModal.title}}</div>
+            <div>
+                <i ng-click="closeTaskModal()" class="close-modal fas fa-times"></i>
+            </div>
+        </div>
+        <div class="my-modal-content" style="height:{{taskModal.contentHeight}}">
+            <!-- form starts -->
+            <div class="row mt-2">
+                <div class="col">
+                    <form action="javascript:void(0)" ng-submit="saveTaskToTaskboard()">
+                        <div class="form-group">
+                            <label for="">Title</label>
+                            <input type="text" ng-model="task.title" class="form-control"
+                                   ng-class="{'is-invalid': errors.title}">
+                            <div class="invalid-feedback">{{errors.title}}</div>
+                        </div>
+                        <div class="form-group">
+                            <label for="">Description</label>
+                            <textarea style="height:120px" class="form-control"
+                                      ng-class="{'is-invalid': errors.description}">{{task.description}}</textarea>
+                            <div class="invalid-feedback">{{errors.description}}</div>
+                        </div>
+                        <div class="form-group">
+                            <label for="">Due Date</label>
+                            <input type="date" ng-model="task.due_date" class="form-control"
+                                   ng-class="{'is-invalid': errors.due_date}">
+                            <div class="invalid-feedback">{{errors.due_date}}</div>
+                        </div>
+                        <div class="form-group">
+                            <label for="">Assigned to</label>
+                            <input type="text" ng-model="task.assigned_to" class="form-control"
+                                   ng-class="{'is-invalid': errors.assigned_to}">
+                            <div class="invalid-feedback">{{errors.assigned_to}}</div>
+                        </div>
+
+                        <div class="form-group d-flex" style="justify-content:flex-end">
+                            <input type="hidden" ng-model="task.id">
+                            <input type="hidden" ng-model="task.taskboard_id">
+                            <input type="submit" class="btn btn-success" ng-value="taskModal.save"/>
+                        </div>
+                    </form>
+
+                </div>
+            </div>
+        </div>
+        <!-- form ends -->
+    </div>
+
+
+    <div ng-show="addMemberModal" class="my-modal"
+         style="height:{{memberModal.height ? memberModal.height : '400px'}}; width:{{memberModal.width ? memberModal.width:'400px'}};">
+        <div class="my-modal-title d-flex" style="justify-content:space-between">
+            <div>{{memberModal.title}}</div>
+            <div>
+                <i ng-click="closeMemberModal()" class="close-modal fas fa-times"></i>
+            </div>
+        </div>
+        <div class="my-modal-content" style="height:{{memberModal.contentHeight}}">
+            <!-- form starts -->
+            <div class="row mt-2">
+                <div class="col">
+                    <form action="javascript:void(0)" ng-submit="saveMemberToTaskboard()">
+                        <div class="form-group">
+                            <label for="">User</label>
+                            <select name="taskboard_member" ng-model="taskboardUser.app_user" class="form-control" ng-class="{'is-invalid': errors.user}" multiple>
+                                <option ng-value="user.id" ng-repeat="user in users">{{user.email}}</option>
+                            </select>
+                            <div class="invalid-feedback">{{errors.user}}</div>
+                        </div>
+                        <div class="form-group d-flex" style="justify-content:flex-end">
+
+                            <input type="hidden" name="taskboard_id" ng-model="taskboardUser.taskboard">
+                            <input type="submit" class="btn btn-success" ng-value="memberModal.save"/>
+                        </div>
+                    </form>
+
+                </div>
+            </div>
+        </div>
+        <!-- form ends -->
+    </div>
+
+
 </div>
 

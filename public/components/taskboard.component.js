@@ -50,6 +50,8 @@ angular.
         // handler for modal close button
         $scope.closeTaskboard = function($event) {
             $scope.displayModal = false;
+            $scope.taskboard = {}
+            $scope.errors = {}
         }
         // handler for add form modal save
         $scope.saveTaskboard = function(){
