@@ -32,11 +32,15 @@ angular.
                 $scope.taskboard.created_by = response.data.data.created_by
                 $scope.taskboard.creator = response.data.data.creator
                 $scope.taskboard.updated_date = response.data.data.updated_date
-
                 $scope.taskboardUser.taskboard = $scope.taskboard.id
+                $scope.task.taskboard_id = $scope.taskboard.id
+            })
 
-            },function errorCallback(response){
-
+            $http({
+                method:"GET",
+                url: base_url+"/tasks/"+$scope.taskboardId
+            }).then(function successCallback(response){
+                console.log(response)
             })
 
             // get members
@@ -47,8 +51,6 @@ angular.
                 if(response.data.success){
                     $scope.taskboard.members = response.data.data;
                 }
-            },function errorCallback(response){
-
             })
 
             // get users
@@ -58,12 +60,8 @@ angular.
             }).then(function successCallback(response){
                 if(response.data.success){
                     $scope.users = response.data.data
-                    console.log($scope.users)
                 }
-            },function errorCallback(response){
-
             })
-
         }
 
         $scope.showTaskModal = function(title, submitValue, height='400', width='400'){
@@ -74,6 +72,7 @@ angular.
             $scope.taskModal.width = width+'px'
             $scope.taskModal.contentHeight = (height-50)+'px'
         }
+
         $scope.closeTaskModal = function(){
             $scope.addTaskModal = false
         }
@@ -101,6 +100,24 @@ angular.
                     $scope.fetchData()
                     $scope.errors = {}
                     $scope.taskboardUser = {}
+                    $scope.addMemberModal = false
+                }else{
+                    $scope.errors = response.data.errors
+                }
+            })
+        }
+
+        $scope.saveTaskToTaskboard = function(){
+            $http({
+                url: base_url+'/tasks',
+                method: 'POST',
+                data: $scope.task
+            }).then(function successCallback(response){
+                if(response.data.success){
+                    $scope.fetchData()
+                    $scope.errors = {}
+                    $scope.task = {}
+                    $scope.addTaskModal = false
                 }else{
                     $scope.errors = response.data.errors
                 }

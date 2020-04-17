@@ -38,6 +38,12 @@ class AppUserMethods:
         return app_user
 
     @staticmethod
+    def get_user_key(id):
+        id = int(id)
+        key = ndb.Key(AppUser, id)
+        return key
+
+    @staticmethod
     def get_user(id):
         id = int(id)
         key = ndb.Key(AppUser, id)
