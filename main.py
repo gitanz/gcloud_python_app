@@ -6,6 +6,7 @@ from handlers.TaskboardHandler import TaskboardHandler
 import webapp2
 from handlers.TaskboardMemberHandler import TaskboardMemberHandler
 
+# api routes
 app = webapp2.WSGIApplication([
     webapp2.Route('/', handler=MainHandler, name='home'),
     webapp2.Route(r'/taskboards', handler=TaskboardHandler, name='taskboard_index', handler_method="list", methods=['GET']),
@@ -16,4 +17,6 @@ app = webapp2.WSGIApplication([
     webapp2.Route('/taskboard_members', handler=TaskboardMemberHandler, name='taskboard_user_post', handler_method="post", methods=['POST']),
     webapp2.Route('/taskboard_members/<:\d+>', handler=TaskboardMemberHandler, name='taskboard_user_get', handler_method="index", methods=['GET']),
     webapp2.Route('/tasks', handler=TaskHandler, name='task_post', handler_method="post", methods=['POST']),
+    webapp2.Route(r'/taskboards/<:\d+>/tasks', handler=TaskHandler, name='taskboard_tasks', handler_method="get_all_taskboard_tasks", methods=['GET']),
+    webapp2.Route('/tasks/<:\d+>', handler=TaskHandler, name='task_get', handler_method="get", methods=['GET'])
 ], debug=True)

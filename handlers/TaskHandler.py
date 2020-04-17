@@ -11,17 +11,27 @@ class TaskHandler(BaseHandler):
         super(TaskHandler, self).__init__(request=request, response=response)
 
     def index(self):
-        taskboard_objects = TaskboardMethods.get_all_taskboards()
-        taskboards = []
-        for taskboard_object in taskboard_objects:
-            response_object = TaskboardMethods.taskboard_to_dictionary(taskboard_object)
-            taskboards.append(response_object)
-        response = {'success': True, 'data': taskboards}
+        task_objects = TaskMethods.get_all_tasks()
+        tasks = []
+        for task_object in task_objects:
+            response_object = TaskMethods.task_to_dictionary(task_object)
+            tasks.append(response_object)
+        response = {'success': True, 'data': tasks}
         self.send_json_object(response)
 
+    def get_all_taskboard_tasks(self, taskboard_id):
+        task_objects = TaskMethods.get_all_tasks_by_taskboard(taskboard_id)
+        tasks = []
+        for task_object in task_objects:
+            response_object = TaskMethods.task_to_dictionary(task_object)
+            tasks.append(response_object)
+        response = {'success': True, 'data': tasks}
+        self.send_json_object(response)
+
+
     def get(self, id):
-        taskboard_object = TaskboardMethods.get_by_id(int(id))
-        response = {'success': True, 'data': TaskboardMethods.taskboard_to_dictionary(taskboard_object)}
+        task_object = TaskMethods.get_by_id(int(id))
+        response = {'success': True, 'data': TaskMethods.task_to_dictionary(task_object)}
         self.send_json_object(response)
 
     def post(self):
@@ -60,6 +70,8 @@ class TaskHandler(BaseHandler):
 
         if 'status' not in params:
             params['status'] = False
+        else:
+            params['status'] = params['status'] == '1'
 
         if 'title' not in params or len(params['title'].strip()) == 0:
             validation_error['title'] = 'Title field is required'

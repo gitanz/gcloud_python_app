@@ -30,7 +30,8 @@ class TaskMethods:
             'title': task.title,
             'description': task.description,
             'due_date': task.due_date.strftime('%Y-%m-%d'),
-            'assigned_to': task.assigned_to.get().email,
+            'assigned_to_email': task.assigned_to.get().email,
+            'assigned_to': task.assigned_to.get().key.id(),
             'status': task.status,
             'created_by': task.created_by.get().email,
             'created_date': task.created_date.strftime('%Y-%m-%d'),
@@ -41,6 +42,12 @@ class TaskMethods:
     @staticmethod
     def get_all_tasks():
         return Task.query().fetch()
+
+    @staticmethod
+    def get_all_tasks_by_taskboard(taskboard_id):
+        taskboard_id = int(str(taskboard_id).strip())
+        taskboard_key = TaskboardMethods.get_by_id(taskboard_id).key
+        return Task.query(Task.taskboard == taskboard_key).fetch()
 
     @staticmethod
     def get_by_id(id):

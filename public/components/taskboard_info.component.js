@@ -38,9 +38,11 @@ angular.
 
             $http({
                 method:"GET",
-                url: base_url+"/tasks/"+$scope.taskboardId
+                url: base_url+"/taskboards/"+$scope.taskboardId+"/tasks"
             }).then(function successCallback(response){
-                console.log(response)
+                if(response.data.success){
+                    $scope.tasks = response.data.data
+                }
             })
 
             // get members
@@ -64,17 +66,36 @@ angular.
             })
         }
 
-        $scope.showTaskModal = function(title, submitValue, height='400', width='400'){
+        $scope.showTaskModal = function(title, submitValue, height='400', width='400', task_id=false, readonly=false){
             $scope.addTaskModal = true
             $scope.taskModal.save = submitValue
             $scope.taskModal.title = title
             $scope.taskModal.height = height+'px'
             $scope.taskModal.width = width+'px'
             $scope.taskModal.contentHeight = (height-50)+'px'
+            $scope.taskModal.editModal = false
+            $scope.taskModal.readonly = readonly
+            console.log($scope.taskModal.readonly)
+            if(task_id){
+                $scope.taskModal.editModal = true
+                $http({
+                    url: base_url+'/tasks/'+task_id,
+                    method: 'get',
+                }).then(function successCallback(response){
+                    if(response.data.success){
+                        $scope.task.isEdit = true
+                        $scope.task = response.data.data
+                        $scope.task.due_date = new Date($scope.task.due_date)
+                        $scope.task.status = $scope.task.status ? "1":"0"
+                        console.log($scope.task.status)
+                    }
+                })
+            }
         }
 
         $scope.closeTaskModal = function(){
             $scope.addTaskModal = false
+            $scope.task = {}
         }
 
         $scope.showMemberModal = function(title, submitValue, height='400', width='400'){

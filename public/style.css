@@ -9,6 +9,7 @@ body{
     padding: 7px;
     vertical-align: middle;
     border-top: 1px solid #dee2e6;
+    text-align:center
 }
 .nav a{
     color: #000000d9;
@@ -66,3 +67,6 @@ body{
     overflow-x:hidden;
 }
 
+.form-control:disabled, .form-control[readonly] {
+    background-color: #FFFFFF;
+}

@@ -13,24 +13,37 @@
         <div class="card">
             <div class="card-header d-flex align-items-center">
                 <div>Tasks</div>
-                <button ng-click="showTaskModal('Add Task', 'Save','550', '500')"
+                <button ng-click="showTaskModal('Add Task', 'Save','600', '600')"
                         class="btn btn-success btn-sm ml-auto"><i class="fas fa-id-card"></i> Add Task
                 </button>
             </div>
-            <ul class="list-group list-group-flush">
-                <li class="list-group-item d-flex d-row">
-                    <span>Task 1</span>
-                    <a href="#" class="ml-auto"><i class="fas fa-edit"></i></a>
-                </li>
-                <li class="list-group-item d-flex d-row">
-                    <span>Task 2</span>
-                    <a href="#" class="ml-auto"><i class="fas fa-edit"></i></a>
-                </li>
-                <li class="list-group-item d-flex d-row">
-                    <span>Task 3</span>
-                    <a href="#" class="ml-auto"><i class="fas fa-edit"></i></a>
-                </li>
-            </ul>
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Title</th>
+                        <th>Assigned to</th>
+                        <th>Created by</th>
+                        <th>Due Date</th>
+                        <th>Status</th>
+                        <th>Operations</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr ng-repeat="task in tasks">
+                        <td>{{task.title}}</td>
+                        <td>{{task.assigned_to}}</td>
+                        <td>{{task.created_by}}</td>
+                        <td>{{task.due_date}}</td>
+                        <td><i class="fas" ng-class="{'fa-check-circle text-success':task.status, 'fa-spinner text-danger':!task.status}"></i></td>
+                        <td>
+                            <button ng-click="showTaskModal('Details', 'Update', '620', '600', task.id, true)" class="btn btn-default btn-sm"><i class="fas fa-info-circle"></i>&nbsp;Details</button>
+                            <button ng-click="showTaskModal('Edit Task', 'Update', '620', '600', task.id)" class="btn btn-default btn-sm"><i class="fas fa-edit"></i>&nbsp;Edit</button>
+                            <button class="btn btn-default btn-sm"><i class="fas fa-trash-alt"></i>&nbsp;Delete</button>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+
         </div>
     </div>
     <div class="col-md-3 col-sm-12">
@@ -66,33 +79,55 @@
                         <div class="form-group">
                             <label for="">Title</label>
                             <input type="text" ng-model="task.title" class="form-control"
-                                   ng-class="{'is-invalid': errors.title}">
+                                   ng-class="{'is-invalid': errors.title}" ng-disabled="taskModal.readonly">
                             <div class="invalid-feedback">{{errors.title}}</div>
                         </div>
                         <div class="form-group">
                             <label for="">Description</label>
-                            <textarea style="height:120px" class="form-control" ng-model="task.description"
+                            <textarea style="height:120px" class="form-control" ng-model="task.description" ng-disabled="taskModal.readonly"
                                       ng-class="{'is-invalid': errors.description}">{{task.description}}</textarea>
                             <div class="invalid-feedback">{{errors.description}}</div>
                         </div>
                         <div class="form-group">
                             <label for="">Due Date</label>
-                            <input type="date" ng-model="task.due_date" class="form-control"
+                            <input type="date" ng-model="task.due_date" class="form-control" ng-disabled="taskModal.readonly"
                                    ng-class="{'is-invalid': errors.due_date}">
                             <div class="invalid-feedback">{{errors.due_date}}</div>
                         </div>
                         <div class="form-group">
                             <label for="">Assigned to</label>
-                            <select ng-model="task.assigned_to" class="form-control" ng-class="{'is-invalid': errors.description}">
+                            <select ng-model="task.assigned_to" class="form-control" ng-class="{'is-invalid': errors.description}" ng-disabled="taskModal.readonly">
                                 <option value="">Select member</option>
-                                <option value="{{taskboard_member.app_user}}" ng-repeat="taskboard_member in taskboard.members">{{taskboard_member.app_user_email}}</option>
+                                <option value="{{taskboard_member.app_user}}" ng-repeat="taskboard_member in taskboard.members"
+                                        ng-selected="taskboard_member.app_user == task.assigned_to"
+                                >{{taskboard_member.app_user_email}}</option>
                             </select>
                             <div class="invalid-feedback">{{errors.assigned_to}}</div>
                         </div>
+
+                        <div class="form-group" ng-show="taskModal.editModal">
+                            <label for="">Status</label>
+                            <select ng-model="task.status" class="form-control" ng-class="{'is-invalid': errors.description}" ng-disabled="taskModal.readonly">
+                                <option value="0" ng-selected="task.status==0">Incomplete</option>
+                                <option value="1" ng-selected="task.status==1">Complete</option>
+                            </select>
+                            <div class="invalid-feedback">{{errors.assigned_to}}</div>
+                        </div>
+
+                        <div class="form-group" ng-show="taskModal.readonly">
+                            <label for="">Created by</label>
+                            <div class="form-control">{{task.created_by}}</div>
+                        </div>
+
+                        <div class="form-group" ng-show="taskModal.readonly">
+                            <label for="">Created Date</label>
+                            <div class="form-control">{{task.created_date}}</div>
+                        </div>
+
                         <div class="form-group d-flex" style="justify-content:flex-end">
                             <input type="hidden" ng-model="task.id">
                             <input type="hidden" ng-model="task.taskboard_id">
-                            <input type="submit" class="btn btn-success" ng-value="taskModal.save"/>
+                            <input type="submit" class="btn btn-success" ng-value="taskModal.save" ng-show="!taskModal.readonly"/>
                         </div>
                     </form>
 
