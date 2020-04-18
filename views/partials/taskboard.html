@@ -1,6 +1,6 @@
 <div class="row mt-2" style="border-bottom:1px solid #ececec">
     <div class="col">
-        <h4>Taskboards</h4>
+        <h5>Taskboards</h5>
     </div>
 </div>
 <div class="row mt-2">
@@ -22,7 +22,9 @@
             </tr>
             </thead>
             <tbody>
-
+            <tr ng-if="taskboardData.length == 0">
+                <td colspan="5">No Taskboards Found</td>
+            </tr>
             <tr ng-repeat="taskboardValue in taskboardData">
                 <td>{{taskboardValue.title}}</td>
                 <td>
@@ -55,8 +57,8 @@
 <div>
     <div id="modal" ng-show="displayModal" class="my-modal"
          style="height:{{height ? height : '400px'}}; width:{{width ? width:'400px'}};">
-        <div class="my-modal-title d-flex" style="justify-content:space-between">
-            <div>{{title}}</div>
+        <div class="my-modal-title d-flex" style="justify-content:space-between;align-items:center">
+            <h6 style="margin:0">{{title}}</h6>
             <div>
                 <i ng-click="closeTaskboard()" class="close-modal fas fa-times"></i>
             </div>

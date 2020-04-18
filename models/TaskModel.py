@@ -15,6 +15,7 @@ class Task(ndb.Model):
     created_by = ndb.KeyProperty()
     created_date = ndb.DateTimeProperty(auto_now=True)
     updated_date = ndb.DateTimeProperty(auto_now=True)
+    completed_date = ndb.DateTimeProperty()
 
 
 class TaskMethods:
@@ -30,13 +31,20 @@ class TaskMethods:
             'title': task.title,
             'description': task.description,
             'due_date': task.due_date.strftime('%Y-%m-%d'),
-            'assigned_to_email': task.assigned_to.get().email,
-            'assigned_to': task.assigned_to.get().key.id(),
+            'due_date_text': str((
+                                             task.due_date - datetime.datetime.now()).days) + ' days remaining' if task.due_date > datetime.datetime.now() else str(
+                (datetime.datetime.now() - task.due_date).days) + ' days overdue',
+            'overdue': task.due_date < datetime.datetime.now(),
+            'assigned_to_email': task.assigned_to.get().email if task.assigned_to else 'unassigned',
+            'assigned_to': task.assigned_to.get().key.id() if task.assigned_to else None,
             'status': task.status,
+            'status_text': 'completed' if task.status else 'ongoing',
             'created_by': task.created_by.get().email,
             'created_date': task.created_date.strftime('%Y-%m-%d'),
             'updated_date': task.updated_date.strftime('%Y-%m-%d'),
-            'creator': task.created_by.get().email == AppUserMethods.get_current_user().email
+            'creator': task.created_by.get().email == AppUserMethods.get_current_user().email,
+            'completed_date': task.completed_date.strftime('%Y-%m-%d') if task.completed_date else None,
+            'completed_date_text': (str((task.due_date - task.completed_date).days) + ' days before due' if task.due_date > task.completed_date else str((task.completed_date - task.due_date).days) + ' days after due date') if task.completed_date else None
         }
 
     @staticmethod
@@ -48,6 +56,14 @@ class TaskMethods:
         taskboard_id = int(str(taskboard_id).strip())
         taskboard_key = TaskboardMethods.get_by_id(taskboard_id).key
         return Task.query(Task.taskboard == taskboard_key).fetch()
+
+    @staticmethod
+    def get_all_tasks_by_taskboard_and_member(taskboard_id, app_user_id):
+        taskboard_id = int(str(taskboard_id).strip())
+        app_user_id = int(str(app_user_id).strip())
+        taskboard_key = TaskboardMethods.get_by_id(taskboard_id).key
+        app_user_key = AppUserMethods.get_user_key(app_user_id)
+        return Task.query(Task.taskboard == taskboard_key).filter(Task.assigned_to == app_user_key).fetch()
 
     @staticmethod
     def get_by_id(id):
@@ -76,6 +92,10 @@ class TaskMethods:
         task.assigned_to = AppUserMethods.get_user_key(int(assigned_to))
         task.status = bool(status)
         task.updated_date = datetime.datetime.now()
+        if task.status:
+            task.completed_date = datetime.datetime.now()
+        else:
+            task.completed_date = None
 
         if not TaskMethods.exists_task(title, id):
             task.put()
@@ -94,6 +114,7 @@ class TaskMethods:
         task.status = False
         task.updated_date = datetime.datetime.now()
         task.created_date = datetime.datetime.now()
+        task.completed_date = None
         task.created_by = AppUserMethods.get_current_user().key
 
         if not TaskMethods.exists_task(title):
@@ -112,3 +133,26 @@ class TaskMethods:
         id = int(str(id).strip())
         key = ndb.Key(Task, id)
         key.delete()
+
+    @staticmethod
+    def unassign_tasks(tasks):
+        for task in tasks:
+            task.assigned_to = None
+            task.put()
+        return True
+
+    @staticmethod
+    def mark_as_complete(task_id):
+        task = TaskMethods.get_by_id(int(task_id))
+        task.status = True
+        task.completed_date = datetime.datetime.now()
+        task.put()
+        return task
+
+    @staticmethod
+    def mark_as_ongoing(task_id):
+        task = TaskMethods.get_by_id(int(task_id))
+        task.status = False
+        task.completed_date = None
+        task.put()
+        return task

@@ -1,6 +1,6 @@
 <div class="row mt-2" style="border-bottom:1px solid #ececec">
     <div class="col d-flex" style="justify-content:space-between">
-        <h4>Taskboard: {{taskboard.title}}</h4>
+        <h5>Taskboard: {{taskboard.title}}</h5>
         <div>
             <div><small><strong><i ng-if="taskboard.creator" class="fas fa-user-shield"></i> Administrator:</strong>
                 {{taskboard.created_by}}</small></div>
@@ -12,7 +12,7 @@
     <div class="col-md-9 col-sm-12">
         <div class="card">
             <div class="card-header d-flex align-items-center">
-                <div>Tasks</div>
+                <h6 style="margin:0;">Tasks</h6>
                 <button ng-click="showTaskModal('Add Task', 'Save','600', '600')"
                         class="btn btn-success btn-sm ml-auto"><i class="fas fa-id-card"></i> Add Task
                 </button>
@@ -29,16 +29,27 @@
                     </tr>
                 </thead>
                 <tbody>
+                    <tr ng-if="tasks.errors.unauthorised">
+                        <td colspan="6">Unauthorised access</td>
+                    </tr>
+                    <tr ng-if="!tasks.errors.unauthorised && tasks.length==0">
+                        <td colspan="6">No records found</td>
+                    </tr>
                     <tr ng-repeat="task in tasks">
                         <td>{{task.title}}</td>
-                        <td>{{task.assigned_to}}</td>
+                        <td><span class="badge" ng-class="{'badge-primary':task.assigned_to, 'badge-danger':!task.assigned_to}">{{task.assigned_to_email}}</span></td>
                         <td>{{task.created_by}}</td>
-                        <td>{{task.due_date}}</td>
-                        <td><i class="fas" ng-class="{'fa-check-circle text-success':task.status, 'fa-spinner text-danger':!task.status}"></i></td>
                         <td>
-                            <button ng-click="showTaskModal('Details', 'Update', '620', '600', task.id, true)" class="btn btn-default btn-sm"><i class="fas fa-info-circle"></i>&nbsp;Details</button>
-                            <button ng-click="showTaskModal('Edit Task', 'Update', '620', '600', task.id)" class="btn btn-default btn-sm"><i class="fas fa-edit"></i>&nbsp;Edit</button>
-                            <button class="btn btn-default btn-sm"><i class="fas fa-trash-alt"></i>&nbsp;Delete</button>
+                            <div>{{task.due_date}}</div>
+                            <div><span class="badge" ng-if="!task.status" ng-class="{'badge-success':!task.overdue, 'badge-danger':task.overdue}">{{task.due_date_text}}</span></div>
+                        </td>
+                        <td><i title="{{task.status_text}}" class="fas" ng-class="{'fa-check-circle text-success':task.status, 'fa-spinner text-danger':!task.status}"></i></td>
+                        <td>
+                            <button ng-if="!task.status" title="Mark as complete" ng-click="markTaskComplete(task)" class="btn btn-light btn-sm text-success"><i class="fas fa-marker"></i>&nbsp;</button>
+                            <button ng-if="task.status" title="Mark as ongoing" ng-click="markTaskOngoing(task)" class="btn btn-light btn-sm text-danger"><i class="fas fa-marker"></i>&nbsp;</button>
+                            <button title="View details" ng-click="showTaskModal('Details', 'Update', '620', '600', task.id, true)" class="btn btn-light btn-sm"><i class="fas fa-info-circle"></i></button>
+                            <button title="Edit Task" ng-click="showTaskModal('Edit Task', 'Update', '620', '600', task.id)" class="btn btn-light btn-sm"><i class="fas fa-edit"></i>&nbsp;</button>
+                            <button title="Delete task" class="btn btn-light btn-sm"><i class="fas fa-trash-alt"></i>&nbsp</button>
                         </td>
                     </tr>
                 </tbody>
@@ -49,13 +60,19 @@
     <div class="col-md-3 col-sm-12">
         <div class="card">
             <div class="card-header d-flex align-items-center">
-                <div>Members</div>
-                <button ng-click="showMemberModal('Add Member', 'Invite', '350','350')" class="btn btn-success btn-sm ml-auto">Invite Member</button>
+                <h6 style="margin:0">Members</h6>
+                <button ng-if="taskboard.creator"  ng-click="showMemberModal('Add Member', 'Invite', '350','350')" class="btn btn-success btn-sm ml-auto">Invite Member</button>
             </div>
             <ul class="list-group list-group-flush">
-                <li class="list-group-item d-flex d-row" ng-repeat="member in taskboard.members">
+                <li ng-if="taskboard.members.errors.unauthorised" class="list-group-item d-flex d-row" style="align-items:center">
+                    <span>Unauthorised access</span>
+                </li>
+                <li ng-if="!taskboard.members.unauthorised && taskboard.members.length==0" class="list-group-item d-flex d-row" style="align-items:center">
+                    <span>No records found</span>
+                </li>
+                <li class="list-group-item d-flex d-row" style="align-items:center" ng-if="!taskboard.members.unauthorised && taskboard.members.length > 0" ng-repeat="member in taskboard.members">
                     <span>{{member.app_user_email}}</span>
-                    <a href="#" class="ml-auto"><i class="fas fa-trash-alt"></i></a>
+                    <button ng-if="taskboard.creator" ng-click="memberDelete(member)" class="btn btn-sm btn-light ml-auto"><i class="fas fa-trash-alt"></i></button>
                 </li>
             </ul>
         </div>
@@ -65,8 +82,8 @@
 <div>
     <div ng-show="addTaskModal" class="my-modal"
          style="height:{{taskModal.height ? taskModal.height : '400px'}}; width:{{taskModal.width ? taskModal.width:'400px'}};">
-        <div class="my-modal-title d-flex" style="justify-content:space-between">
-            <div>{{taskModal.title}}</div>
+        <div class="my-modal-title d-flex" style="justify-content:space-between;align-items:center">
+            <h6 style="margin:0">{{taskModal.title}}</h6>
             <div>
                 <i ng-click="closeTaskModal()" class="close-modal fas fa-times"></i>
             </div>
@@ -76,6 +93,9 @@
             <div class="row mt-2">
                 <div class="col">
                     <form action="javascript:void(0)" ng-submit="saveTaskToTaskboard()">
+                        <div ng-if="errors.unauthorised" class="alert alert-danger">
+                            You are not allowed to perform this operation
+                        </div>
                         <div class="form-group">
                             <label for="">Title</label>
                             <input type="text" ng-model="task.title" class="form-control"
@@ -96,7 +116,7 @@
                         </div>
                         <div class="form-group">
                             <label for="">Assigned to</label>
-                            <select ng-model="task.assigned_to" class="form-control" ng-class="{'is-invalid': errors.description}" ng-disabled="taskModal.readonly">
+                            <select ng-model="task.assigned_to" class="form-control" ng-class="{'is-invalid': errors.assigned_to}" ng-disabled="taskModal.readonly">
                                 <option value="">Select member</option>
                                 <option value="{{taskboard_member.app_user}}" ng-repeat="taskboard_member in taskboard.members"
                                         ng-selected="taskboard_member.app_user == task.assigned_to"
@@ -107,11 +127,11 @@
 
                         <div class="form-group" ng-show="taskModal.editModal">
                             <label for="">Status</label>
-                            <select ng-model="task.status" class="form-control" ng-class="{'is-invalid': errors.description}" ng-disabled="taskModal.readonly">
+                            <select ng-model="task.status" class="form-control" ng-class="{'is-invalid': errors.status}" ng-disabled="taskModal.readonly">
                                 <option value="0" ng-selected="task.status==0">Incomplete</option>
                                 <option value="1" ng-selected="task.status==1">Complete</option>
                             </select>
-                            <div class="invalid-feedback">{{errors.assigned_to}}</div>
+                            <div class="invalid-feedback">{{errors.status}}</div>
                         </div>
 
                         <div class="form-group" ng-show="taskModal.readonly">
@@ -140,8 +160,8 @@
 
     <div ng-show="addMemberModal" class="my-modal"
          style="height:{{memberModal.height ? memberModal.height : '400px'}}; width:{{memberModal.width ? memberModal.width:'400px'}};">
-        <div class="my-modal-title d-flex" style="justify-content:space-between">
-            <div>{{memberModal.title}}</div>
+        <div class="my-modal-title d-flex" style="justify-content:space-between;align-items:center">
+            <h6 style="margin:0">{{memberModal.title}}</h6>
             <div>
                 <i ng-click="closeMemberModal()" class="close-modal fas fa-times"></i>
             </div>
@@ -151,6 +171,9 @@
             <div class="row mt-2">
                 <div class="col">
                     <form action="javascript:void(0)" ng-submit="saveMemberToTaskboard()">
+                        <div ng-if="errors.unauthorised" class="alert alert-danger">
+                            You are not allowed to perform this operation
+                        </div>
                         <div class="form-group">
                             <label for="">User</label>
                             <select name="taskboard_member" ng-model="taskboardUser.app_user" class="form-control" ng-class="{'is-invalid': errors.user}" multiple>

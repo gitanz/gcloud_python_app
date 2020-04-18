@@ -1,6 +1,8 @@
 from google.appengine.ext import ndb
 
-from models.AppUserModel import AppUserMethods
+import models
+from models.AppUserModel import AppUser, AppUserMethods
+
 import datetime
 
 
@@ -29,8 +31,27 @@ class TaskboardMethods:
         }
 
     @staticmethod
-    def get_all_taskboards(offset=0, limit=10):
-        return Taskboard.query().fetch(limit=limit, offset=offset)
+    def get_all_membered_taskboards(offset=0, limit=10):
+        app_user_id = AppUserMethods.get_current_user().key.id()
+        TaskboardMember = models.TaskboardMemberModel.TaskboardMember
+        return TaskboardMember.query(
+            TaskboardMember.app_user == ndb.Key(AppUser, app_user_id)).\
+            fetch(projection=[TaskboardMember.taskboard])
+
+    @staticmethod
+    def get_all_authorised_taskboards():
+        membered_taskboard_objects = TaskboardMethods.get_all_membered_taskboards()
+        membered_taskboard_keys = map(lambda taskboardMember: taskboardMember.taskboard, membered_taskboard_objects)
+        created_taskboard_keys = TaskboardMethods.get_all_created_taskboards()
+        taskboard_keys = set(created_taskboard_keys).union(set(membered_taskboard_keys))
+        taskboard_objects = TaskboardMethods.get_records_from_keys(taskboard_keys)
+        return taskboard_objects
+
+    @staticmethod
+    def get_all_created_taskboards():
+        app_user_key = AppUserMethods.get_current_user().key
+        return Taskboard.query(Taskboard.created_by == app_user_key).fetch(keys_only=True)
+
 
     @staticmethod
     def get_by_id(id):
@@ -67,6 +88,7 @@ class TaskboardMethods:
         taskboard = Taskboard(title=title, created_by=AppUserMethods.get_current_user().key)
         if not TaskboardMethods.exists_taskboard(title):
             taskboard.put()
+            models.TaskboardMemberModel.TaskboardMemberMethods.insert_taskboard_member(taskboard.key.id(), taskboard.created_by.id())
         else:
             taskboard = False
         return taskboard
@@ -80,3 +102,8 @@ class TaskboardMethods:
         id = int(str(id).strip())
         key = ndb.Key(Taskboard, id)
         key.delete()
+
+    @staticmethod
+    def get_records_from_keys(taskboard_keys):
+        return ndb.get_multi(taskboard_keys)
+        pass

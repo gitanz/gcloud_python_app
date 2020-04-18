@@ -20,25 +20,39 @@ class TaskHandler(BaseHandler):
         self.send_json_object(response)
 
     def get_all_taskboard_tasks(self, taskboard_id):
-        task_objects = TaskMethods.get_all_tasks_by_taskboard(taskboard_id)
-        tasks = []
-        for task_object in task_objects:
-            response_object = TaskMethods.task_to_dictionary(task_object)
-            tasks.append(response_object)
-        response = {'success': True, 'data': tasks}
+        if self.is_get_authorised(taskboard_id):
+            task_objects = TaskMethods.get_all_tasks_by_taskboard(taskboard_id)
+            tasks = []
+            for task_object in task_objects:
+                response_object = TaskMethods.task_to_dictionary(task_object)
+                tasks.append(response_object)
+            response = {'success': True, 'data': tasks}
+        else:
+            response = {'success': False, 'data': [], 'errors': {'unauthorised': True}}
+
         self.send_json_object(response)
 
+    def is_get_authorised(self, id):
+        if not id:
+            return False
+        taskboard_object = TaskboardMethods.get_by_id(int(id))
+        authorised_taskboard_objects = TaskboardMethods.get_all_authorised_taskboards()
+        return taskboard_object in authorised_taskboard_objects
 
     def get(self, id):
         task_object = TaskMethods.get_by_id(int(id))
-        response = {'success': True, 'data': TaskMethods.task_to_dictionary(task_object)}
+        if self.is_get_authorised(task_object.taskboard.id()):
+            response = {'success': True, 'data': TaskMethods.task_to_dictionary(task_object)}
+        else:
+            response = {'success': False, 'data': [], 'errors': {'unauthorised': True}}
         self.send_json_object(response)
 
     def post(self):
         params = json.loads(self.request.body)
         params, validation_errors = self.validate(params)
-
-        if validation_errors:
+        if not self.is_get_authorised(params['taskboard_id']):
+            response = {'success': False, 'data': [], 'errors': {'unauthorised': True}}
+        elif validation_errors:
             response = {'success': False, 'validate': False, 'errors': validation_errors}
         else:
             task_object = TaskMethods.put_task(
@@ -60,6 +74,28 @@ class TaskHandler(BaseHandler):
             }
         self.send_json_object(response)
 
+    def mark_complete(self, task_id):
+        params = json.loads(self.request.body)
+        params, validation_errors = self.validate(params)
+        if self.is_get_authorised(params['taskboard_id']):
+            TaskMethods.mark_as_complete(task_id)
+            response = {'success': True}
+        else:
+            response = {'success': False, 'data': [], 'errors': {'unauthorised': True}}
+
+        self.send_json_object(response)
+
+    def mark_ongoing(self, task_id):
+        params = json.loads(self.request.body)
+        params, validation_errors = self.validate(params)
+        if self.is_get_authorised(params['taskboard_id']):
+            TaskMethods.mark_as_ongoing(task_id)
+            response = {'success': True}
+        else:
+            response = {'success': False, 'data': [], 'errors': {'unauthorised': True}}
+
+        self.send_json_object(response)
+
     def delete(self):
         pass
 
@@ -67,6 +103,9 @@ class TaskHandler(BaseHandler):
         validation_error = {}
         if 'id' not in params:
             params['id'] = False
+
+        if 'taskboard_id' not in params:
+            params['taskboard_id'] = False
 
         if 'status' not in params:
             params['status'] = False
@@ -80,6 +119,9 @@ class TaskHandler(BaseHandler):
             if bool(TaskMethods.exists_task(params['title'], params['id'])):
                 validation_error['title'] = 'Title already exists'
 
+        if 'taskboard_id' not in params or len(str(params['taskboard_id']).strip()) == 0:
+            validation_error['title'] = 'No taskboard selected.'
+
         if 'description' not in params or len(params['description'].strip()) == 0:
             validation_error['description'] = 'Description field is required'
 
@@ -92,7 +134,7 @@ class TaskHandler(BaseHandler):
             except:
                 validation_error['due_date'] = 'Invalid date'
 
-        if 'assigned_to' not in params or len(str(params['assigned_to']).strip()) == 0:
+        if 'assigned_to' not in params or not params['assigned_to'] or len(str(params['assigned_to']).strip()) == 0:
             validation_error['assigned_to'] = 'Assigned to field is required'
 
         return params, validation_error

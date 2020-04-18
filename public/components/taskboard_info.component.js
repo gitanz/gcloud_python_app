@@ -2,7 +2,7 @@ angular.
   module('TaskManagementApp').
   component('taskboardInfo', {
     templateUrl: '/templates/taskboard_info.html',
-    controller: function TaskboardController($scope, $http, $location, $routeParams) {
+    controller: function TaskboardController($scope, $rootScope, $http, $location, $routeParams) {
         self = this;
         $scope.taskboardId = $routeParams.taskboardId
 
@@ -42,6 +42,8 @@ angular.
             }).then(function successCallback(response){
                 if(response.data.success){
                     $scope.tasks = response.data.data
+                }else{
+                    $scope.tasks.errors = response.data.errors
                 }
             })
 
@@ -52,6 +54,9 @@ angular.
             }).then(function successCallback(response){
                 if(response.data.success){
                     $scope.taskboard.members = response.data.data;
+                }else{
+                    $scope.taskboard.members = {}
+                    $scope.taskboard.members.errors = response.data.errors
                 }
             })
 
@@ -128,6 +133,38 @@ angular.
             })
         }
 
+        $scope.memberDelete = function(member){
+            console.log(member)
+            $rootScope.confirmModal = {
+                showModal: true,
+                modalTitle: 'Delete Member',
+                modalText: 'Are you sure you want to delete this member. All the tasks assigned to this member will be unassigned.',
+                contentHeight: '150px',
+                height: '200px',
+                width: '350px',
+                successButton: 'Ok',
+                cancelButton: 'Cancel',
+                confirmCallback: function(){
+                    $http({
+                        url:base_url+'/taskboard_members/delete',
+                        method: 'POST',
+                        data: member
+                    }).then(function successCallback(response){
+                        if(response.data.success){
+                            $rootScope.confirmModal = {}
+                            $scope.fetchData()
+                        }else{
+                            $rootScope.errors = response.data.errors
+                        }
+                    })
+                },
+                cancelCallback: function(){
+                    $rootScope.confirmModal = {}
+                }
+            }
+
+        }
+
         $scope.saveTaskToTaskboard = function(){
             $http({
                 url: base_url+'/tasks',
@@ -144,5 +181,34 @@ angular.
                 }
             })
         }
+
+        $scope.markTaskComplete = function(task){
+            $http({
+                url: base_url+'/tasks/'+task.id+"/mark-complete",
+                method: 'POST',
+                data: task
+            }).then(function successCallback(response){
+                if(response.data.success){
+                    $scope.fetchData()
+                }else{
+                    $scope.errors = response.data.errors
+                }
+            })
+        }
+
+        $scope.markTaskOngoing = function(task){
+            $http({
+                url: base_url+'/tasks/'+task.id+"/mark-ongoing",
+                method: 'POST',
+                data: task
+            }).then(function successCallback(response){
+                if(response.data.success){
+                    $scope.fetchData()
+                }else{
+                    $scope.errors = response.data.errors
+                }
+            })
+        }
+
     }
   })

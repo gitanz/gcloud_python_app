@@ -1,7 +1,5 @@
 from google.appengine.ext import ndb
-
 from models.AppUserModel import AppUserMethods, AppUser
-
 from models.TaskboardModel import Taskboard
 
 

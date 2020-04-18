@@ -7,7 +7,7 @@ class AppUserHandler(BaseHandler):
         # calling super class constructor
         super(AppUserHandler, self).__init__(request=request, response=response)
 
-    def list(self):
+    def index(self):
         user_objects = AppUserMethods.get_all_users()
         app_users = []
         for user_object in user_objects:

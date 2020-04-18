@@ -4,11 +4,18 @@
     <meta charset="UTF-8">
     <title>{{params.title}}</title>
     <link rel="stylesheet" href="/public/bootstrap.min.css">
-    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.0/css/all.css" integrity="sha384-lZN37f5QGtY3VHgisS14W3ExzMWZxybE1SJSEsQp9S+oqd12jhcu+A56Ebc1zFSJ" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.0/css/all.css"
+          integrity="sha384-lZN37f5QGtY3VHgisS14W3ExzMWZxybE1SJSEsQp9S+oqd12jhcu+A56Ebc1zFSJ" crossorigin="anonymous">
     <link rel="stylesheet" href="/public/style.css">
-    <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
-    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+    <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"
+            integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN"
+            crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"
+            integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q"
+            crossorigin="anonymous"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"
+            integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl"
+            crossorigin="anonymous"></script>
     <script src="/public/angular.min.js"></script>
     <script src="/public/angular-route.js"></script>
     <script src="/public/app.module.js"></script>
@@ -17,10 +24,11 @@
     <script src="/public/components/taskboard_info.component.js"></script>
     <script>
         var base_url = '{{params.base_url}}'
+
     </script>
 </head>
 <body>
-
+{{'{{hawa}}'}}
 <nav class="navbar navbar-light bg-light">
     <a class="navbar-brand" href="#">Task Management</a>
     {%if params.user%}
@@ -41,6 +49,39 @@
         </div>
     </div>
 </div>
+
+<!--confirmation model-->
+<div ng-show="{{'confirmModal.showModal'}}" class="my-modal"
+     style="{{'height:{{confirmModal.height ? confirmModal.height : \'400px\'}}; width:{{confirmModal.width ? confirmModal.width:\'400px\'}};'}}">
+    <div class="my-modal-title d-flex" style="justify-content:space-between;align-items:center">
+        <h6 style="margin:0">{{'{{confirmModal.modalTitle}}'}}</h6>
+        <div>
+            <i ng-click="confirmModal.cancelCallback()" class="close-modal fas fa-times"></i>
+        </div>
+    </div>
+    <div class="my-modal-content" style="{{'height:{{confirmModal.contentHeight}}'}}">
+        <!-- form starts -->
+        <div class="row mt-2">
+            <div class="col">
+                <form action="javascript:void(0)" ng-submit="confirmModal.confirmCallback()" class="d-flex flex-column" style="justify-content: space-around">
+                    <div ng-if="errors.unauthorised" class="alert alert-danger">
+                            You are not allowed to perform this operation
+                    </div>
+                    <div class="form-group">
+                        {{'{{confirmModal.modalText}}'}}
+                    </div>
+                    <div class="form-group d-flex" style="justify-content:flex-end">
+                        <input type="button" class="btn btn-sm btn-danger" ng-value="confirmModal.cancelButton" ng-click="confirmModal.cancelCallback()"/>
+                        <input type="submit" class="btn btn-sm btn-success ml-2" ng-value="confirmModal.successButton"/>
+                    </div>
+                </form>
+
+            </div>
+        </div>
+    </div>
+    <!-- form ends -->
+</div>
+
 <p id="myOverlay" class="my-overlay hide"></p>
 </body>
 </html>

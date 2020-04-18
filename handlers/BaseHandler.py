@@ -28,5 +28,6 @@ class BaseHandler(webapp2.RequestHandler):
         self.view = ViewHandler(self.response, base_url, self.user, url)
 
     def send_json_object(self, response_object):
+        # type: (object) -> object
         self.response.headers['content-type'] = 'text/plain'
         self.response.write(json.dumps(response_object))
