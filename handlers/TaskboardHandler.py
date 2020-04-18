@@ -12,8 +12,9 @@ class TaskboardHandler(BaseHandler):
         authorised_taskboard_objects = TaskboardMethods.get_all_authorised_taskboards()
         taskboards = []
         for taskboard_object in authorised_taskboard_objects:
-            response_object = TaskboardMethods.taskboard_to_dictionary(taskboard_object)
-            taskboards.append(response_object)
+            if taskboard_object:
+                response_object = TaskboardMethods.taskboard_to_dictionary(taskboard_object)
+                taskboards.append(response_object)
 
         response = {'success': True, 'data': taskboards}
         self.send_json_object(response)
@@ -68,3 +69,31 @@ class TaskboardHandler(BaseHandler):
                 validation_error = {'title': 'Title already exists'}
 
         return params, validation_error
+
+    def delete_taskboard(self):
+        params = json.loads(self.request.body)
+        validation_error = {}
+        response = {}
+        taskboard = False
+
+        if 'taskboard_id' not in params:
+            validation_error['errors'] = 'No taskboard selected'
+        else:
+            taskboard = TaskboardMethods.get_by_id(params['taskboard_id'])
+
+        if not taskboard:
+            validation_error['errors'] = "Taskboard could not be deleted."
+
+        if taskboard and taskboard.created_by != AppUserMethods.get_current_user().key and not validation_error:
+            validation_error['unauthorised'] = True
+
+        elif not validation_error and taskboard and taskboard.created_by == AppUserMethods.get_current_user().key and not TaskboardMethods.is_empty(taskboard):
+            validation_error['errors'] = "Taskboard not empty."
+
+        if not validation_error:
+            TaskboardMethods.delete_taskboard(taskboard.key.id())
+            response['success'] = True
+
+        response['errors'] = validation_error if validation_error else False
+
+        self.send_json_object(response)

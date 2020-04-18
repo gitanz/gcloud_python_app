@@ -15,7 +15,7 @@ class Task(ndb.Model):
     created_by = ndb.KeyProperty()
     created_date = ndb.DateTimeProperty(auto_now=True)
     updated_date = ndb.DateTimeProperty(auto_now=True)
-    completed_date = ndb.DateTimeProperty()
+    completed_date = ndb.DateProperty()
 
 
 class TaskMethods:
@@ -32,7 +32,7 @@ class TaskMethods:
             'description': task.description,
             'due_date': task.due_date.strftime('%Y-%m-%d'),
             'due_date_text': str((
-                                             task.due_date - datetime.datetime.now()).days) + ' days remaining' if task.due_date > datetime.datetime.now() else str(
+                                         task.due_date - datetime.datetime.now()).days) + ' days remaining' if task.due_date > datetime.datetime.now() else str(
                 (datetime.datetime.now() - task.due_date).days) + ' days overdue',
             'overdue': task.due_date < datetime.datetime.now(),
             'assigned_to_email': task.assigned_to.get().email if task.assigned_to else 'unassigned',
@@ -44,7 +44,9 @@ class TaskMethods:
             'updated_date': task.updated_date.strftime('%Y-%m-%d'),
             'creator': task.created_by.get().email == AppUserMethods.get_current_user().email,
             'completed_date': task.completed_date.strftime('%Y-%m-%d') if task.completed_date else None,
-            'completed_date_text': (str((task.due_date - task.completed_date).days) + ' days before due' if task.due_date > task.completed_date else str((task.completed_date - task.due_date).days) + ' days after due date') if task.completed_date else None
+            'completed_date_text': (str((
+                                                    task.due_date.date() - task.completed_date).days) + ' days before due' if task.due_date.date() > task.completed_date else str(
+                (task.completed_date - task.due_date.date()).days) + ' days after due') if task.completed_date else None
         }
 
     @staticmethod
@@ -93,7 +95,7 @@ class TaskMethods:
         task.status = bool(status)
         task.updated_date = datetime.datetime.now()
         if task.status:
-            task.completed_date = datetime.datetime.now()
+            task.completed_date = datetime.date.today()
         else:
             task.completed_date = None
 
@@ -132,7 +134,10 @@ class TaskMethods:
     def delete_task(id):
         id = int(str(id).strip())
         key = ndb.Key(Task, id)
-        key.delete()
+        if key:
+            return key.delete()
+        else:
+            return False
 
     @staticmethod
     def unassign_tasks(tasks):
@@ -145,7 +150,7 @@ class TaskMethods:
     def mark_as_complete(task_id):
         task = TaskMethods.get_by_id(int(task_id))
         task.status = True
-        task.completed_date = datetime.datetime.now()
+        task.completed_date = datetime.date.today()
         task.put()
         return task
 
@@ -156,3 +161,21 @@ class TaskMethods:
         task.completed_date = None
         task.put()
         return task
+
+    @staticmethod
+    def get_open_tasks_count(taskboard):
+        return Task.query(Task.taskboard == taskboard.key).filter(Task.status == False).count(100)
+
+    @staticmethod
+    def get_closed_tasks_count(taskboard):
+        return Task.query(Task.taskboard == taskboard.key).filter(Task.status == True).count()
+
+    @staticmethod
+    def get_total_tasks_count(taskboard):
+        return Task.query(Task.taskboard == taskboard.key).count()
+        pass
+
+    @staticmethod
+    def get_closed_today_tasks_count(taskboard):
+        return Task.query(Task.taskboard == taskboard.key).filter(Task.status == True).filter(Task.completed_date == datetime.date.today()).count()
+        pass

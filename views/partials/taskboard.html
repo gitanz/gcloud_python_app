@@ -5,12 +5,18 @@
 </div>
 <div class="row mt-2">
     <div class="col">
-
-        <div class="d-flex flex-row-reverse">
-            <button class="btn btn-primary"
-                    ng-click="addTaskboard('Add Taskboard','/templates/add_board.html', '400px', '250px')">Add Board
-            </button>
+        <div ng-if="taskboardErrors.unauthorised" class="alert alert-danger">
+                    Unauthorised operation
         </div>
+        <div ng-if="taskboardErrors.errors" class="alert alert-danger">
+                    {{taskboardErrors.errors}}
+        </div>
+        <div class="d-flex flex-row" style="">
+                <button class="btn btn-primary ml-auto"
+                        ng-click="addTaskboard('Add Taskboard','/templates/add_board.html', '400px', '250px')">Add Board
+                </button>
+        </div>
+
         <table class="table table-bordered mt-2">
             <thead>
             <tr>
@@ -18,6 +24,7 @@
                 <th>Created By</th>
                 <th>Created Date</th>
                 <th>Last Updated</th>
+                <th>Figures</th>
                 <th>Operations</th>
             </tr>
             </thead>
@@ -37,16 +44,24 @@
                 <td>{{taskboardValue.created_date}}</td>
                 <td>{{taskboardValue.updated_date}}</td>
                 <td>
-                    <div class="d-flex" style="justify-content:space-around">
-                        <button ng-click="showTaskboard(taskboardValue.id)" class="btn btn-success btn-sm"><i class="fas fa-info-circle"></i> View</button>
-                        <button ng-click="editTaskboard('Edit Taskboard','', '400px', '250px',taskboardValue.id)"
-                                class="btn btn-primary btn-sm"><i class="fas fa-edit"></i> Edit
+                    <span title="Total tasks" class="badge badge-primary">{{taskboardValue.stats.total_count}}</span>
+                    <span title="Completed tasks" class="badge badge-success">{{taskboardValue.stats.closed_count}}</span>
+                    <span title="Ongoing tasks" class="badge badge-warning">{{taskboardValue.stats.open_count}}</span>
+                    <span title="Completed tasks today" class="badge badge-secondary">{{taskboardValue.stats.closed_today}}</span>
+                </td>
+                <td>
+                    <div class="d-flex" style="justify-content:flex-start">
+                        <button ng-click="showTaskboard(taskboardValue.id)" class="btn btn-light btn-sm ml-2"><i
+                                class="fas fa-info-circle"></i> View
                         </button>
-                        <button class="btn btn-warning btn-sm"><i class="fas fa-user-plus"></i> Invite</button>
-                        <button class="btn btn-danger btn-sm"><i class="fas fa-trash"></i> Delete</button>
+                        <button ng-if="taskboardValue.creator"
+                                ng-click="editTaskboard('Edit Taskboard','', '400px', '250px',taskboardValue.id)"
+                                class="btn btn-light btn-sm ml-2"><i class="fas fa-edit"></i> Edit
+                        </button>
+                        <button ng-if="taskboardValue.creator" ng-click="deleteTaskboard(taskboardValue)"
+                                class="btn btn-light btn-sm ml-2"><i class="fas fa-trash"></i> Delete
+                        </button>
                     </div>
-
-
                 </td>
             </tr>
             </tbody>

@@ -12,6 +12,7 @@ app = webapp2.WSGIApplication([
     webapp2.Route(r'/taskboards', handler=TaskboardHandler, name='taskboard_index', handler_method="index", methods=['GET']),
     webapp2.Route(r'/taskboards/<:\d+>', handler=TaskboardHandler, name='taskboard', handler_method="get", methods=['GET']),
     webapp2.Route('/taskboards', handler=TaskboardHandler, name='taskboard_post', handler_method="post", methods=['POST']),
+    webapp2.Route('/taskboards/delete', handler=TaskboardHandler, name='taskboard_delete', handler_method="delete_taskboard", methods=['POST']),
     webapp2.Route('/app_users', handler=AppUserHandler, name='app_users_index', handler_method="index", methods=['GET']),
     webapp2.Route(r'/app_users/<:\d+>', handler=AppUserHandler, name='app_user', handler_method="get", methods=['GET']),
     # add members to taskboard
@@ -22,5 +23,6 @@ app = webapp2.WSGIApplication([
     webapp2.Route(r'/taskboards/<:\d+>/tasks', handler=TaskHandler, name='taskboard_tasks', handler_method="get_all_taskboard_tasks", methods=['GET']),
     webapp2.Route('/tasks/<:\d+>', handler=TaskHandler, name='task_get', handler_method="get", methods=['GET']),
     webapp2.Route('/tasks/<:\d+>/mark-complete', handler=TaskHandler, name='task_complete', handler_method="mark_complete", methods=['POST']),
-    webapp2.Route('/tasks/<:\d+>/mark-ongoing', handler=TaskHandler, name='task_ongoing', handler_method="mark_ongoing", methods=['POST'])
+    webapp2.Route('/tasks/<:\d+>/mark-ongoing', handler=TaskHandler, name='task_ongoing', handler_method="mark_ongoing", methods=['POST']),
+    webapp2.Route('/tasks/<:\d+>/delete', handler=TaskHandler, name='task_delete', handler_method="delete_task", methods=['POST'])
 ], debug=True)

@@ -51,7 +51,7 @@
 </div>
 
 <!--confirmation model-->
-<div ng-show="{{'confirmModal.showModal'}}" class="my-modal"
+<div ng-if="confirmModal.showModal" class="my-modal"
      style="{{'height:{{confirmModal.height ? confirmModal.height : \'400px\'}}; width:{{confirmModal.width ? confirmModal.width:\'400px\'}};'}}">
     <div class="my-modal-title d-flex" style="justify-content:space-between;align-items:center">
         <h6 style="margin:0">{{'{{confirmModal.modalTitle}}'}}</h6>
@@ -83,5 +83,6 @@
 </div>
 
 <p id="myOverlay" class="my-overlay hide"></p>
+
 </body>
 </html>

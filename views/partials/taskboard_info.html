@@ -20,12 +20,12 @@
             <table class="table">
                 <thead>
                     <tr>
-                        <th>Title</th>
+                        <th style="width:130px;">Title</th>
                         <th>Assigned to</th>
                         <th>Created by</th>
                         <th>Due Date</th>
                         <th>Status</th>
-                        <th>Operations</th>
+                        <th style="width:200px">Operations</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -43,13 +43,16 @@
                             <div>{{task.due_date}}</div>
                             <div><span class="badge" ng-if="!task.status" ng-class="{'badge-success':!task.overdue, 'badge-danger':task.overdue}">{{task.due_date_text}}</span></div>
                         </td>
-                        <td><i title="{{task.status_text}}" class="fas" ng-class="{'fa-check-circle text-success':task.status, 'fa-spinner text-danger':!task.status}"></i></td>
+                        <td title="{{task.status_text}}" >
+                            <div><i class="fas" ng-class="{'fa-check-circle text-success':task.status, 'fa-spinner text-danger':!task.status}"></i></div>
+                            <div><span class="badge badge-success" ng-if="task.status" >{{task.completed_date_text}}</span></div>
+                        </td>
                         <td>
                             <button ng-if="!task.status" title="Mark as complete" ng-click="markTaskComplete(task)" class="btn btn-light btn-sm text-success"><i class="fas fa-marker"></i>&nbsp;</button>
                             <button ng-if="task.status" title="Mark as ongoing" ng-click="markTaskOngoing(task)" class="btn btn-light btn-sm text-danger"><i class="fas fa-marker"></i>&nbsp;</button>
                             <button title="View details" ng-click="showTaskModal('Details', 'Update', '620', '600', task.id, true)" class="btn btn-light btn-sm"><i class="fas fa-info-circle"></i></button>
                             <button title="Edit Task" ng-click="showTaskModal('Edit Task', 'Update', '620', '600', task.id)" class="btn btn-light btn-sm"><i class="fas fa-edit"></i>&nbsp;</button>
-                            <button title="Delete task" class="btn btn-light btn-sm"><i class="fas fa-trash-alt"></i>&nbsp</button>
+                            <button title="Delete task" ng-click="deleteTask(task)" class="btn btn-light btn-sm"><i class="fas fa-trash-alt"></i></button>
                         </td>
                     </tr>
                 </tbody>
@@ -96,6 +99,7 @@
                         <div ng-if="errors.unauthorised" class="alert alert-danger">
                             You are not allowed to perform this operation
                         </div>
+
                         <div class="form-group">
                             <label for="">Title</label>
                             <input type="text" ng-model="task.title" class="form-control"

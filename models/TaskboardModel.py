@@ -5,6 +5,8 @@ from models.AppUserModel import AppUser, AppUserMethods
 
 import datetime
 
+# from models.TaskModel import TaskMethods
+
 
 class Taskboard(ndb.Model):
     title = ndb.StringProperty()
@@ -21,13 +23,22 @@ class TaskboardMethods:
     @staticmethod
     def taskboard_to_dictionary(taskboard):
 
+
+
+
         return {
             'id': taskboard.key.id(),
             'title': taskboard.title,
             'created_by': taskboard.created_by.get().email,
             'created_date': taskboard.created_date.strftime('%Y-%m-%d'),
             'updated_date': taskboard.updated_date.strftime('%Y-%m-%d'),
-            'creator': taskboard.created_by.get().email == AppUserMethods.get_current_user().email
+            'creator': taskboard.created_by.get().email == AppUserMethods.get_current_user().email,
+            'stats': {
+                'open_count': models.TaskModel.TaskMethods.get_open_tasks_count(taskboard),
+                'closed_count': models.TaskModel.TaskMethods.get_closed_tasks_count(taskboard),
+                'total_count': models.TaskModel.TaskMethods.get_total_tasks_count(taskboard),
+                'closed_today': models.TaskModel.TaskMethods.get_closed_today_tasks_count(taskboard)
+            }
         }
 
     @staticmethod
@@ -107,3 +118,9 @@ class TaskboardMethods:
     def get_records_from_keys(taskboard_keys):
         return ndb.get_multi(taskboard_keys)
         pass
+
+    @staticmethod
+    def is_empty(taskboard):
+        tasks_in_taskboards = models.TaskModel.TaskMethods.get_all_tasks_by_taskboard(taskboard.key.id())
+        members_in_taskboards = models.TaskboardMemberModel.TaskboardMemberMethods.get_all_taskboard_members_by_taskboard(taskboard.key.id())
+        return not (members_in_taskboards or tasks_in_taskboards)

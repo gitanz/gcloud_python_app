@@ -76,8 +76,8 @@ class TaskHandler(BaseHandler):
 
     def mark_complete(self, task_id):
         params = json.loads(self.request.body)
-        params, validation_errors = self.validate(params)
-        if self.is_get_authorised(params['taskboard_id']):
+        task = TaskMethods.get_by_id(params['id'])
+        if self.is_get_authorised(task.taskboard.id()):
             TaskMethods.mark_as_complete(task_id)
             response = {'success': True}
         else:
@@ -87,8 +87,8 @@ class TaskHandler(BaseHandler):
 
     def mark_ongoing(self, task_id):
         params = json.loads(self.request.body)
-        params, validation_errors = self.validate(params)
-        if self.is_get_authorised(params['taskboard_id']):
+        task = TaskMethods.get_by_id(params['id'])
+        if self.is_get_authorised(task.taskboard.id()):
             TaskMethods.mark_as_ongoing(task_id)
             response = {'success': True}
         else:
@@ -96,8 +96,17 @@ class TaskHandler(BaseHandler):
 
         self.send_json_object(response)
 
-    def delete(self):
-        pass
+    def delete_task(self, task_id):
+        params = json.loads(self.request.body)
+        task = TaskMethods.get_by_id(params['id'])
+        if self.is_get_authorised(task.taskboard.id()):
+            TaskMethods.delete_task(task.key.id())
+            response = {'success': True}
+        else:
+            response = {'success': False, 'data': [], 'errors': {'unauthorised': True}}
+
+        self.send_json_object(response)
+
 
     def validate(self, params):
         validation_error = {}

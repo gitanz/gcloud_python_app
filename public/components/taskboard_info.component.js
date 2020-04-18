@@ -124,6 +124,7 @@ angular.
             }).then(function successCallback(response){
                 if(response.data.success){
                     $scope.fetchData()
+                    $scope.fetchData()
                     $scope.errors = {}
                     $scope.taskboardUser = {}
                     $scope.addMemberModal = false
@@ -134,7 +135,6 @@ angular.
         }
 
         $scope.memberDelete = function(member){
-            console.log(member)
             $rootScope.confirmModal = {
                 showModal: true,
                 modalTitle: 'Delete Member',
@@ -183,32 +183,102 @@ angular.
         }
 
         $scope.markTaskComplete = function(task){
-            $http({
-                url: base_url+'/tasks/'+task.id+"/mark-complete",
-                method: 'POST',
-                data: task
-            }).then(function successCallback(response){
-                if(response.data.success){
-                    $scope.fetchData()
-                }else{
-                    $scope.errors = response.data.errors
+
+            $rootScope.confirmModal = {
+                    showModal: true,
+                    modalTitle: 'Mark as Completed',
+                    modalText: 'Are you sure you want to mark this task as Completed ?',
+                    contentHeight: '150px',
+                    height: '200px',
+                    width: '350px',
+                    successButton: 'Yes',
+                    cancelButton: 'Cancel',
+                    confirmCallback: function(){
+                        $http({
+                            url: base_url+'/tasks/'+task.id+"/mark-complete",
+                            method: 'POST',
+                            data: {'id': task.id}
+                        }).then(function successCallback(response){
+                            if(response.data.success){
+                                $scope.fetchData()
+                                $scope.fetchData()
+                            }else{
+                                $scope.errors = response.data.errors
+                            }
+                            $rootScope.confirmModal = {}
+                        })
+                    },
+                    cancelCallback: function(){
+                        $rootScope.confirmModal = {}
+                    }
                 }
-            })
+
+
         }
 
         $scope.markTaskOngoing = function(task){
-            $http({
-                url: base_url+'/tasks/'+task.id+"/mark-ongoing",
-                method: 'POST',
-                data: task
-            }).then(function successCallback(response){
-                if(response.data.success){
-                    $scope.fetchData()
-                }else{
-                    $scope.errors = response.data.errors
+
+            $rootScope.confirmModal = {
+                    showModal: true,
+                    modalTitle: 'Mark as On-going',
+                    modalText: 'Are you sure you want to mark this task as On-going ?. Previous completion date CANNOT be recovered.',
+                    contentHeight: '150px',
+                    height: '200px',
+                    width: '350px',
+                    successButton: 'Yes',
+                    cancelButton: 'Cancel',
+                    confirmCallback: function(){
+                        $http({
+                            url: base_url+'/tasks/'+task.id+"/mark-ongoing",
+                            method: 'POST',
+                            data: {'id': task.id}
+                        }).then(function successCallback(response){
+                            if(response.data.success){
+                                $scope.fetchData()
+                                $scope.fetchData()
+                            }else{
+                                $scope.errors = response.data.errors
+                            }
+                            $rootScope.confirmModal = {}
+                        })
+                    },
+                    cancelCallback: function(){
+                        $rootScope.confirmModal = {}
+                    }
                 }
-            })
         }
 
+        $scope.deleteTask = function(task){
+
+            $rootScope.confirmModal = {
+                showModal: true,
+                modalTitle: 'Delete Task',
+                modalText: 'Are you sure you want to delete this task ? Deleted task\'s CANNOT be recovered again.',
+                contentHeight: '150px',
+                height: '200px',
+                width: '350px',
+                successButton: 'Yes',
+                cancelButton: 'Cancel',
+                confirmCallback: function(){
+                    $http({
+                        url: base_url+'/tasks/'+task.id+"/delete",
+                        method: 'POST',
+                        data: {'id': task.id}
+                    }).then(function successCallback(response){
+                        if(response.data.success){
+                            $scope.fetchData()
+                            $scope.fetchData()
+                        }else{
+                            $scope.errors = response.data.errors
+                        }
+                        $rootScope.confirmModal = {}
+
+                    })
+                },
+                cancelCallback: function(){
+                    $rootScope.confirmModal = {}
+                }
+            }
+        }
     }
   })

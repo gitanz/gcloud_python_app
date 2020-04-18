@@ -2,7 +2,7 @@ angular.
   module('TaskManagementApp').
   component('taskboard', {
     templateUrl: '/templates/taskboard.html',
-    controller: function TaskboardController($scope, $http, $location) {
+    controller: function TaskboardController($rootScope, $scope, $http, $location) {
         self = this;
         // on initialization
         $scope.fetchData = function(){
@@ -49,6 +49,7 @@ angular.
         }
         // handler for modal close button
         $scope.closeTaskboard = function($event) {
+            $scope.fetchData()
             $scope.displayModal = false;
             $scope.taskboard = {}
             $scope.errors = {}
@@ -66,6 +67,7 @@ angular.
                     $scope.success = response.data.success
                     $scope.message = response.data.message
                     $scope.fetchData()
+                    $scope.fetchData()
                     $scope.taskboard = {}
                     $scope.displayModal = false;
                 }else{
@@ -74,6 +76,36 @@ angular.
             },function errorCallback(response){
 
             })
+        }
+
+        $scope.deleteTaskboard = function(taskboard){
+            $rootScope.confirmModal = {
+                    showModal: true,
+                    modalTitle: 'Delete Taskboard',
+                    modalText: 'Are you sure you want to delete this Taskboard ?',
+                    contentHeight: '150px',
+                    height: '200px',
+                    width: '350px',
+                    successButton: 'Yes',
+                    cancelButton: 'Cancel',
+                    confirmCallback: function(){
+                        $http({
+                            url: base_url+'/taskboards/delete',
+                            method: 'POST',
+                            data: {'taskboard_id': taskboard.id}
+                        }).then(function successCallback(response){
+                            if(response.data.success){
+                                $scope.fetchData()
+                            }else{
+                                $scope.taskboardErrors = response.data.errors
+                            }
+                            $rootScope.confirmModal = {}
+                        })
+                    },
+                    cancelCallback: function(){
+                        $rootScope.confirmModal = {}
+                    }
+                }
         }
 
         $scope.showTaskboard = function(taskboardId){
