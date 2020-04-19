@@ -3,8 +3,10 @@ import os
 
 """
 View class that renders view with jinja
-
 """
+# @TODO Make this class singleton following singleton pattern
+
+
 class ViewHandler:
 
     def __init__(self, response, base_url, user, login_out_url):

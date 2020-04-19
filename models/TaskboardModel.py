@@ -45,14 +45,19 @@ class TaskboardMethods:
 
     @staticmethod
     def get_all_membered_taskboards(offset=0, limit=10):
+        # get user from AppUser where email = email of current logged in user
         app_user_id = AppUserMethods.get_current_user().key.id()
+        # getting taskboard member namespace
         TaskboardMember = models.TaskboardMemberModel.TaskboardMember
+        # get all taskboard where from association table TaskboardMember where
+        # TaskboardMember's app_user key is equal to current user's key
         return TaskboardMember.query(
             TaskboardMember.app_user == ndb.Key(AppUser, app_user_id)). \
             fetch(projection=[TaskboardMember.taskboard])
 
     @staticmethod
     def get_all_authorised_taskboards():
+        # get all membered taskboards
         membered_taskboard_objects = TaskboardMethods.get_all_membered_taskboards()
         membered_taskboard_keys = map(lambda taskboardMember: taskboardMember.taskboard, membered_taskboard_objects)
         created_taskboard_keys = TaskboardMethods.get_all_created_taskboards()

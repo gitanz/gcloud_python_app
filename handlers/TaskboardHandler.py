@@ -143,7 +143,7 @@ class TaskboardHandler(BaseHandler):
             iv) if loaded, authenticate creator
             v) if creator not authenticated raise error
             vi) check if taskboard has no members,and tasks, raise error if any is yes
-            vi) if no error raised, cancel operation. else delete
+            vi) if error raised, cancel operation. else delete
 
         """
         # json to python object

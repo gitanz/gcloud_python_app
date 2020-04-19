@@ -23,7 +23,7 @@ class TaskboardMemberHandler(BaseHandler):
         """
         # check if current user has permission to get taskboard i.e taskboad appears in users permitted taskboard list
         if self.is_get_authorised(taskboard_id):
-            # get all memberss
+            # get all members
             members = TaskboardMemberMethods.get_all_taskboard_members_by_taskboard(taskboard_id)
             # initialise response dictionary
             response = {'success': True, 'data': []}
