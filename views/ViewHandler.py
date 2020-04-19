@@ -1,7 +1,10 @@
 import jinja2
 import os
 
+"""
+View class that renders view with jinja
 
+"""
 class ViewHandler:
 
     def __init__(self, response, base_url, user, login_out_url):

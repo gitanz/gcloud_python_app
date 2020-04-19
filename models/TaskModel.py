@@ -6,15 +6,25 @@ from models.TaskboardModel import TaskboardMethods
 
 
 class Task(ndb.Model):
+    # taskboard task belongs to
     taskboard = ndb.KeyProperty()
+    # title of task
     title = ndb.StringProperty()
+    # description of task
     description = ndb.TextProperty()
+    # due_date of task
     due_date = ndb.DateTimeProperty()
+    # AppUser task is assigned to
     assigned_to = ndb.KeyProperty()
+    # Task if completed or not
     status = ndb.BooleanProperty()
+    # User who created task
     created_by = ndb.KeyProperty()
+    # date when task was created
     created_date = ndb.DateTimeProperty(auto_now=True)
+    # date when task was updated
     updated_date = ndb.DateTimeProperty(auto_now=True)
+    # completion date when task was mark completed
     completed_date = ndb.DateProperty()
 
 
@@ -74,6 +84,7 @@ class TaskMethods:
 
     @staticmethod
     def exists_task(title, id=False):
+        # check if task with same title exists
         title = title.strip()
         task = Task.query(Task.title == title)
         if id:
@@ -87,13 +98,16 @@ class TaskMethods:
     def update_task(id, title, description, due_date, assigned_to, status):
         id = int(str(id).strip())
         title = title.strip()
+        # get task by id
         task = Task.get_by_id(id)
+        # set new post data
         task.title = title.strip()
         task.description = description.strip()
         task.due_date = datetime.datetime.strptime(due_date.strip(), '%Y-%m-%dT%H:%M:%S.%fZ')
         task.assigned_to = AppUserMethods.get_user_key(int(assigned_to))
         task.status = bool(status)
         task.updated_date = datetime.datetime.now()
+        # if task's status if completed set completed date as today
         if task.status:
             task.completed_date = datetime.date.today()
         else:
@@ -164,18 +178,22 @@ class TaskMethods:
 
     @staticmethod
     def get_open_tasks_count(taskboard):
+        # open tasks count is count of tasks in board with status = false
         return Task.query(Task.taskboard == taskboard.key).filter(Task.status == False).count(100)
 
     @staticmethod
     def get_closed_tasks_count(taskboard):
+        # closed task count is count of tasks in board with status true
         return Task.query(Task.taskboard == taskboard.key).filter(Task.status == True).count()
 
     @staticmethod
     def get_total_tasks_count(taskboard):
+        # total task count is count of total tasks in taskboard
         return Task.query(Task.taskboard == taskboard.key).count()
         pass
 
     @staticmethod
     def get_closed_today_tasks_count(taskboard):
+        # closed today tasks count is count of total tasks closed today
         return Task.query(Task.taskboard == taskboard.key).filter(Task.status == True).filter(Task.completed_date == datetime.date.today()).count()
         pass

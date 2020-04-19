@@ -5,7 +5,13 @@ from models.AppUserModel import AppUser, AppUserMethods
 
 import datetime
 
-# from models.TaskModel import TaskMethods
+"""
+    Taskboard datastore model
+    title: title of taskboard,
+    created_by: creator of taskboard,
+    created_date: date of taskboard creation
+    updated_date: date taskboard was updated
+"""
 
 
 class Taskboard(ndb.Model):
@@ -22,10 +28,6 @@ class TaskboardMethods:
 
     @staticmethod
     def taskboard_to_dictionary(taskboard):
-
-
-
-
         return {
             'id': taskboard.key.id(),
             'title': taskboard.title,
@@ -46,7 +48,7 @@ class TaskboardMethods:
         app_user_id = AppUserMethods.get_current_user().key.id()
         TaskboardMember = models.TaskboardMemberModel.TaskboardMember
         return TaskboardMember.query(
-            TaskboardMember.app_user == ndb.Key(AppUser, app_user_id)).\
+            TaskboardMember.app_user == ndb.Key(AppUser, app_user_id)). \
             fetch(projection=[TaskboardMember.taskboard])
 
     @staticmethod
@@ -62,7 +64,6 @@ class TaskboardMethods:
     def get_all_created_taskboards():
         app_user_key = AppUserMethods.get_current_user().key
         return Taskboard.query(Taskboard.created_by == app_user_key).fetch(keys_only=True)
-
 
     @staticmethod
     def get_by_id(id):
@@ -82,6 +83,7 @@ class TaskboardMethods:
 
     @staticmethod
     def update_taskboard(id, title):
+        # update taskboard from provided id with new title. Set new updated date
         id = int(str(id).strip())
         title = title.strip()
         taskboard = Taskboard.get_by_id(id)
@@ -95,32 +97,42 @@ class TaskboardMethods:
 
     @staticmethod
     def insert_taskboard(title):
+        # insert taskboard provided with title into Taskboard datastore
         title = title.strip()
         taskboard = Taskboard(title=title, created_by=AppUserMethods.get_current_user().key)
         if not TaskboardMethods.exists_taskboard(title):
             taskboard.put()
-            models.TaskboardMemberModel.TaskboardMemberMethods.insert_taskboard_member(taskboard.key.id(), taskboard.created_by.id())
+            models.TaskboardMemberModel.TaskboardMemberMethods.insert_taskboard_member(taskboard.key.id(),
+                                                                                       taskboard.created_by.id())
         else:
             taskboard = False
         return taskboard
 
     @staticmethod
     def put_taskboard(title, id=None):
+        # insert if not exists else update taskboard
         return TaskboardMethods.update_taskboard(id, title) if id else TaskboardMethods.insert_taskboard(title)
 
     @staticmethod
     def delete_taskboard(id):
+        # delete taskboard after fetching key
         id = int(str(id).strip())
         key = ndb.Key(Taskboard, id)
         key.delete()
 
     @staticmethod
     def get_records_from_keys(taskboard_keys):
+        # get record from keys set
         return ndb.get_multi(taskboard_keys)
-        pass
 
     @staticmethod
     def is_empty(taskboard):
+        """
+        return true taskboard has no tasks and no members else return false
+        :param taskboard:
+        :return:
+        """
         tasks_in_taskboards = models.TaskModel.TaskMethods.get_all_tasks_by_taskboard(taskboard.key.id())
-        members_in_taskboards = models.TaskboardMemberModel.TaskboardMemberMethods.get_all_taskboard_members_by_taskboard(taskboard.key.id())
+        members_in_taskboards = models.TaskboardMemberModel.TaskboardMemberMethods.get_all_taskboard_members_by_taskboard(
+            taskboard.key.id())
         return not (members_in_taskboards or tasks_in_taskboards)

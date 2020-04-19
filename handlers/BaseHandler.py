@@ -1,9 +1,14 @@
 import webapp2
-from google.appengine.api import users
 from views.ViewHandler import ViewHandler
 from models.AppUserModel import *
 import urlparse
 import json
+
+"""
+Base class for webapp2
+Base logged in authentication and common variables created here
+"""
+
 
 class BaseHandler(webapp2.RequestHandler):
     def __init__(self, request, response):
@@ -17,17 +22,19 @@ class BaseHandler(webapp2.RequestHandler):
 
         # creating login/logout url
         if self.user:
+            # if user is logged in, create logout url
             url = users.create_logout_url(self.request.uri)
             self.appUser = AppUserMethods.fetch_user(self.user.email())
         else:
+            # else create login url.
             self.appUser = None
             url = users.create_login_url(self.request.uri)
             self.redirect(url)
 
         # default template values common for all templates.
+        # creating view object
         self.view = ViewHandler(self.response, base_url, self.user, url)
 
     def send_json_object(self, response_object):
-        # type: (object) -> object
         self.response.headers['content-type'] = 'text/plain'
         self.response.write(json.dumps(response_object))

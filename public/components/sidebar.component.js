@@ -3,6 +3,7 @@ angular.
   component('sideBar', {
     templateUrl: '/templates/sidebar.html',
     controller: function SidebarController() {
+
       this.navs = [
         {
             "text": "Taskboards",

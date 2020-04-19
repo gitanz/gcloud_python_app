@@ -25,8 +25,8 @@ App.run(function($rootScope) {
 });
 
 App.config(function($routeProvider) {
-  $routeProvider.when('/dashboard', {
-    template: '<dashboard></dashboard>',
+  $routeProvider.when('/', {
+    template: '<taskboard></taskboard>',
   });
   $routeProvider.when('/taskboards', {
     template: '<taskboard></taskboard>',
